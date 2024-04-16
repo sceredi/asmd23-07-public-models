@@ -4,18 +4,20 @@ import u07.utils.Time
 import java.util.Random
 import u07.examples.StochasticChannel.*
 import u07.modelling.CTMCSimulation.*
+import scala.annotation.tailrec
 
 extension [A](self: Trace[A])
   def timeUntil(state: A): Option[Double] =
     self find (_._2 == state) map (_._1)
 
-  def timeSpentIn(state: A): Double =
+  @tailrec
+  def timeSpentIn(state: A, acc: Double = 0, times: Int = 0): (Double, Int) =
     self match
-      case Event(tsart, `state`) #:: Event(tend, _) #:: xs =>
-        tend - tsart + xs.timeSpentIn(state)
-      case Event(_, DONE) #:: _ => 0
-      case _ #:: xs             => xs.timeSpentIn(state)
-      case _                    => 0
+      case Event(tstart, `state`) #:: Event(tend, _) #:: xs =>
+        xs.timeSpentIn(state, acc + (tend - tstart), times + 1)
+      case Event(_, DONE) #:: _ => (acc, times)
+      case _ #:: xs             => xs.timeSpentIn(state, acc, times)
+      case _                    => (acc, times)
 
 @main def mainStochasticChannelSimulation =
   Time.timed:
@@ -38,5 +40,5 @@ extension [A](self: Trace[A])
       s"avg time until done communication $avgTilDone"
     )
     println(
-      s"avg time spent in fail ${simulations.map(_.timeSpentIn(FAIL)).sum / runs}"
+      s"avg time spent in fail ${simulations.map(_.timeSpentIn(FAIL)._1).sum / runs}"
     )
