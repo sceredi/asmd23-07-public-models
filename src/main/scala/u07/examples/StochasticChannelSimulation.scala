@@ -3,6 +3,19 @@ package u07.examples
 import u07.utils.Time
 import java.util.Random
 import u07.examples.StochasticChannel.*
+import u07.modelling.CTMCSimulation.*
+
+extension [A](self: Trace[A])
+  def timeUntil(state: A): Option[Double] =
+    self find (_._2 == state) map (_._1)
+
+  def timeSpentIn(state: A): Double =
+    self match
+      case Event(tsart, `state`) #:: Event(tend, _) #:: xs =>
+        tend - tsart + xs.timeSpentIn(state)
+      case Event(_, DONE) #:: _ => 0
+      case _ #:: xs             => xs.timeSpentIn(state)
+      case _                    => 0
 
 @main def mainStochasticChannelSimulation =
   Time.timed:
@@ -20,18 +33,10 @@ import u07.examples.StochasticChannel.*
       stocChannel
         .newSimulationTrace(IDLE, new Random)
     )
-    val avgTilDone = simulations.map(_.find(_._2 == DONE).get._1).sum / runs
+    val avgTilDone = simulations.map(_.timeUntil(DONE).get).sum / runs
     println(
       s"avg time until done communication $avgTilDone"
     )
-    def amountSpentInFail(l: LazyList[Event[State]]): Double =
-      l match
-        case Event(tsart, FAIL) #:: Event(tend, _) #:: xs =>
-          tend - tsart + amountSpentInFail(xs)
-        case Event(_, DONE) #:: _ => 0
-        case _ #:: xs             => amountSpentInFail(xs)
-        case _                    => 0
     println(
-      s"avg time spent in fail ${simulations.map(amountSpentInFail(_)).sum / runs}"
+      s"avg time spent in fail ${simulations.map(_.timeSpentIn(FAIL)).sum / runs}"
     )
-
