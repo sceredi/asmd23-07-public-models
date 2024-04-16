@@ -1,6 +1,6 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "3.4.0"
+ThisBuild / scalaVersion := "3.4.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -11,5 +11,5 @@ lazy val root = (project in file("."))
       ("de.sciss" %% "scala-chart" % "0.8.0").cross(CrossVersion.for2_13Use3)
     ),
     Compile / scalaSource := baseDirectory.value / "src" / "main",
-    Test / scalaSource := baseDirectory.value / "src" / "test",
+    Test / scalaSource := baseDirectory.value / "src" / "test"
   )
