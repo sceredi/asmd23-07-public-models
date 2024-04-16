@@ -110,5 +110,12 @@ project/plugins/project/
 *.log
 
 # End of https://www.toptal.com/developers/gitignore/api/scala,intellij+all,sbt
+### Metals ###
+# metals
+.metals
+.bloop
+project/**/metals.sbt
+
+# End of https://www.toptal.com/developers/gitignore/api/scala,intellij+all,sbt
 
 .bsp/
