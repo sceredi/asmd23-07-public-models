@@ -7,22 +7,22 @@ import u07.modelling.CTMCSimulation.*
 import scala.annotation.tailrec
 import scala.annotation.internal.reachCapability
 
-extension (self: Trace[MSet[Place]])
-  @tailrec
-  def timeSpentIn(
-      state: MSet[Place],
-      acc: Double = 0,
-      times: Int = 0
-  ): (Double, Int) =
-    self match
-      case Event(tstart, s) #:: Event(tend, _) #:: xs
-          if !s.extract(state).isEmpty =>
-        xs.timeSpentIn(state, acc + (tend - tstart), times + 1)
-      case _ #:: xs => xs.timeSpentIn(state, acc, times)
-      // Sometimes the event may never appear, so I want to avoid NaN
-      case _ if times > 0 => (acc, times)
-      case _              => (0, 1)
-
+//extension (self: Trace[MSet[Place]])
+//  @tailrec
+//  def timeSpentIn(
+//      state: MSet[Place],
+//      acc: Double = 0,
+//      times: Int = 0
+//  ): (Double, Int) =
+//    self match
+//      case Event(tstart, s) #:: Event(tend, _) #:: xs
+//          if !s.extract(state).isEmpty =>
+//        xs.timeSpentIn(state, acc + (tend - tstart), times + 1)
+//      case _ #:: xs => xs.timeSpentIn(state, acc, times)
+//      // Sometimes the event may never appear, so I want to avoid NaN
+//      case _ if times > 0 => (acc, times)
+//      case _              => (0, 1)
+//
 def doRun(
     num: Int,
     desc: String,
