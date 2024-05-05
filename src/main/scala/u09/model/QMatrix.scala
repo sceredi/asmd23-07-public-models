@@ -1,5 +1,7 @@
 package u09.model
 
+import java.awt.SystemTray
+
 object QMatrix:
 
   type Node = (Int, Int)
@@ -45,10 +47,30 @@ object QMatrix:
     def makeLearningInstance() =
       QLearning(qSystem, gamma, alpha, epsilon, qFunction)
 
-    def show[E](v: Node => E, formatString: String): String =
+    def show[E](
+        v: Node => E,
+        formatNode: String,
+        formatString: String
+    ): String =
       (for
         row <- 0 until width
         col <- 0 until height
-      yield formatString.format(v((col, row))) + (if (col == height - 1) "\n"
-                                                  else "\t"))
+      yield printNode((row, col), v, formatNode, formatString) +
+        (if (col == height - 1) "\n"
+         else "\t"))
         .mkString("")
+
+    private def printNode[E](
+        node: Node,
+        v: Node => E,
+        formatNode: String,
+        formatString: String
+    ): String =
+      node match
+        case node if obstacles.contains(node) => formatString.format("#")
+        case node if node == initial          => formatString.format("s")
+        case node
+            if reward((node, UP)) + reward((node, DOWN)) +
+              reward((node, LEFT)) + reward((node, RIGHT)) > 0 =>
+          formatString.format("w")
+        case (row, col) => formatNode.format(v(row, col))

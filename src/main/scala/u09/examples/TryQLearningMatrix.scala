@@ -7,16 +7,21 @@ object TryQMatrix extends App:
   import u09.model.QMatrix.Move.*
   import u09.model.QMatrix.*
 
+  val height = 20
+  val heightDecreased = height - 1
   val rl: QMatrix.Facade = Facade(
-    width = 5,
-    height = 5,
-    initial = (4, 4),
+    width = 2,
+    height = height,
+    initial = (0, 0),
     terminal = { case _ => false },
     reward = {
-      case ((1, 0), DOWN) => 10; case ((3, 0), DOWN) => 5; case _ => 0
+      case ((0, `heightDecreased`), _) => 10; case _ => 0
     },
-    jumps = { case ((1, 0), DOWN) => (1, 4); case ((3, 0), DOWN) => (3, 2) },
-    obstacles = List((0, 1), (1, 1), (2, 0), (2, 1)),
+    jumps = { case ((`height`, `height`), _) => (0, 0) },
+    obstacles = (0 until height)
+      .filter(_ % 2 == 0)
+      .map(i => (if i % 4 == 0 then 1 else 0, i))
+      .toList,
     gamma = 0.9,
     alpha = 0.5,
     epsilon = 0.3,
@@ -24,8 +29,7 @@ object TryQMatrix extends App:
   )
 
   val q0 = rl.qFunction
-  println(rl.show(q0.vFunction, "%2.2f"))
+  println(rl.show(q0.vFunction, "%2.2f", "%4s"))
   val q1 = rl.makeLearningInstance().learn(10000, 100, q0)
-  println(rl.show(q1.vFunction, "%2.2f"))
-  println(rl.show(s => q1.bestPolicy(s).toString, "%7s"))
-
+  println(rl.show(q1.vFunction, "%2.2f", "%4s"))
+  println(rl.show(s => q1.bestPolicy(s).toString, "%7s", "%7s"))
